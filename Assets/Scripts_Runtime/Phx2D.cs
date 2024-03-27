@@ -15,9 +15,9 @@ namespace PhxEngine2D {
 
         public Vector2 gravity;
 
-        public Action<RBEntity, RBEntity> OnIntersectEnterHandle; // 交叉开始
-        public Action<RBEntity, RBEntity> OnIntersectStayHandle; // 交叉持续
-        public Action<RBEntity, RBEntity> OnIntersectExitHandle; // 交叉结束
+        public Action<RBEntity, RBEntity> OnTriggerEnterHandle; // 交叉开始
+        public Action<RBEntity, RBEntity> OnTriggerStayHandle; // 交叉持续
+        public Action<RBEntity, RBEntity> OnTriggerExitHandle; // 交叉结束
 
         public Phx2D() {
             gravity = new Vector2(0, -9.8f);
@@ -55,8 +55,25 @@ namespace PhxEngine2D {
 
                 }
             }
+
             // 4. 交叉检测事件触发
+
             // 5. 穿透恢复
+            for (int i = 0; i < all.Count; i += 1) {
+                RBEntity a = all.Values[i];
+                for (int j = i + 1; j < all.Count; j += 1) {
+                    RBEntity b = all.Values[j];
+
+                    // a & b 之间检测
+                    ulong key = GetCombineKey(a.id, b.id);
+                    if (intersectedSet.Contains(key)) {
+                        // 恢复穿透
+                        RestorationUtil.RestorePenetration_Circle_Circle(a, b);
+                    }
+
+                }
+            }
+
             // 6. 穿透恢复事件触发
 
         }
@@ -79,20 +96,25 @@ namespace PhxEngine2D {
         void Intersect_RB_RB(RBEntity a, RBEntity b) {
             if (a.shapeType == ShapeType.Circle && b.shapeType == ShapeType.Circle) {
                 // Circle & Circle
-                bool isIntersected = IntersectionUtil.IsIntersected_Circle_Circle(a.position, a.size.x, b.position, b.size.x);
+                bool isIntersected = IntersectionUtil.IsIntersected_Circle_Circle(a.position, a.size.x, b.position, b.size.x, out _);
                 if (isIntersected) {
                     // 本次交叉
                     a.isIntersected = true;
                     b.isIntersected = true;
 
+                    // 软 与 软
                     ulong key = GetCombineKey(a.id, b.id);
                     if (intersectedSet.Contains(key)) {
                         // 如果上次交叉, 那么触发Stay
-                        OnIntersectStayHandle.Invoke(a, b);
+                        if (a.isTrigger || b.isTrigger) {
+                            OnTriggerStayHandle.Invoke(a, b);
+                        }
                     } else {
                         // 如果上次没有交叉, 那么触发Enter
                         intersectedSet.Add(key);
-                        OnIntersectEnterHandle.Invoke(a, b);
+                        if (a.isTrigger || b.isTrigger) {
+                            OnTriggerEnterHandle.Invoke(a, b);
+                        }
                     }
 
                 } else {
@@ -101,7 +123,9 @@ namespace PhxEngine2D {
                     ulong key = GetCombineKey(a.id, b.id);
                     if (intersectedSet.Contains(key)) {
                         intersectedSet.Remove(key);
-                        OnIntersectExitHandle.Invoke(a, b);
+                        if (a.isTrigger || b.isTrigger) {
+                            OnTriggerExitHandle.Invoke(a, b);
+                        }
                     }
                     a.isIntersected = false;
                     b.isIntersected = false;

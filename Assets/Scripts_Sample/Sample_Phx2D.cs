@@ -18,15 +18,15 @@ public class Sample_Phx2D : MonoBehaviour {
     void Start() {
 
         phx = new Phx2D();
-        phx.OnIntersectEnterHandle = (a, b) => {
+        phx.OnTriggerEnterHandle = (a, b) => {
             Debug.Log("OnIntersectEnter: " + a.id + " & " + b.id);
         };
 
-        phx.OnIntersectStayHandle = (a, b) => {
+        phx.OnTriggerStayHandle = (a, b) => {
             Debug.Log("OnIntersectStay: " + a.id + " & " + b.id);
         };
 
-        phx.OnIntersectExitHandle = (a, b) => {
+        phx.OnTriggerExitHandle = (a, b) => {
             Debug.Log("OnIntersectExit: " + a.id + " & " + b.id);
         };
 

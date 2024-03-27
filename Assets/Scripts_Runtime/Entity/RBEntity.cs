@@ -26,6 +26,7 @@ namespace PhxEngine2D {
 
         // 是否静态
         public bool isStatic;
+        public bool isTrigger;
 
         public bool isIntersected;
 
