@@ -22,6 +22,9 @@ namespace PhxEngine2D {
             // 1. 应用引力
             foreach (RBEntity rb in all.Values) {
                 // 速度
+                if (rb.isStatic) {
+                    continue;
+                }
                 rb.velocity += gravity * rb.gravityScale * dt;
             }
 
@@ -32,6 +35,7 @@ namespace PhxEngine2D {
             }
 
             // 3. 交叉检测
+            // AABB OBB Circle
             // 4. 交叉检测事件触发
             // 5. 穿透恢复
             // 6. 穿透恢复事件触发
@@ -39,10 +43,11 @@ namespace PhxEngine2D {
         }
 
         // 添加刚体
-        public RBEntity Add(int id) {
+        public RBEntity Add(int id, ShapeType shapeType, Vector2 size) {
             RBEntity rb = new RBEntity();
             rb.id = id;
-
+            rb.shapeType = shapeType;
+            rb.size = size;
             all.Add(id, rb);
             return rb;
         }
