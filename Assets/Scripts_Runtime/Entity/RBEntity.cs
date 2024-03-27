@@ -27,11 +27,16 @@ namespace PhxEngine2D {
         // 是否静态
         public bool isStatic;
 
+        public bool isIntersected;
+
         public RBEntity() { }
 
 #if UNITY_EDITOR
         public void DrawGizmos() {
             Gizmos.color = Color.green;
+            if (isIntersected) {
+                Gizmos.color = Color.red;
+            }
             if (shapeType == ShapeType.Square) {
                 Vector2 halfSize = size * 0.5f;
                 Vector2 a = new Vector2(halfSize.x, halfSize.y);
@@ -47,7 +52,7 @@ namespace PhxEngine2D {
                 Gizmos.DrawLine(c, d);
                 Gizmos.DrawLine(d, a);
             } else if (shapeType == ShapeType.Circle) {
-                Gizmos.DrawWireSphere(position, size.x * 0.5f);
+                Gizmos.DrawWireSphere(position, size.x);
             }
         }
 
